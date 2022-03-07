@@ -275,7 +275,7 @@ fn_nextcloud_install_09() {
 
 fn_nextcloud_install_10() {
    echo "Changing permissions to data and html volumes."
-   sudo chmod -R www-data:www-data ${USERINPUT_NEXTCLOUDPATH}volumes/data/ ${USERINPUT_NEXTCLOUDPATH}volumes/html/
+   sudo chown -R www-data:www-data ${USERINPUT_NEXTCLOUDPATH}volumes/data/ ${USERINPUT_NEXTCLOUDPATH}volumes/html/
    echo "Adding cronjob for nextcloud and letsencrypt"
    (sudo crontab -l ; echo "*/5 * * * * docker exec --user www-data nextcloud php -f cron.php >/dev/null 2>&1") | sudo crontab -
    (sudo crontab -l ; echo "55 5 1,15 * * certbot renew && systemctl restart apache2 >/dev/null 2>&1") | sudo crontab -
@@ -361,7 +361,7 @@ fn_install_docker() {
    fn_apt_autoremove_update_upgrade
    sudo apt install docker-ce docker-ce-cli containerd.io -y
    sudo curl -SL https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
-   sudo chmod +x /usr/local/bin/docker-compose
+   sudo chown +x /usr/local/bin/docker-compose
    echo "adding docker iptables mod"
    echo "DOCKER_OPTS=\"--iptables=false\"" | sudo tee -a /etc/default/docker
    echo "restart docker"
