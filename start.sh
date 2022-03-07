@@ -60,6 +60,7 @@ a) Start all steps
       fn_install_docker
       fn_update_enable_ufw
       fn_install_apache_certbot
+      nextcloudmenu
       ;;
    1)
       fn_install_docker
