@@ -373,7 +373,9 @@ fn_install_apache_certbot() {
    fn_apt_autoremove_update_upgrade
    echo "install apt install apache2 software-properties-common letsencrypt python3-certbot-apache"
    sudo apt install apache2 software-properties-common letsencrypt python3-certbot-apache -y
-   echo "restarting apache2 service"
+   echo "Enabling Modules.."
+   sudo a2enmod ssl proxy proxy_http proxy_wstunnel rewrite headers remoteip
+   echo "restarting apache2 service.."
    sudo systemctl restart apache2
    echo "done..."
 }
