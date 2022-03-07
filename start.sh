@@ -247,6 +247,7 @@ fn_nextcloud_install_08() {
    echo "*******************************"
    echo "Now we are going to start docker-compose."
    echo "Depending on your server, this will take some time, please be patient"
+   sudo docker-compose -f ${USERINPUT_NEXTCLOUDPATH}docker-compose.yml up -d
    fn_print_empty_line 1
    fn_countdown 30
    echo "You can try, if you see a nextcloud page visiting:"
