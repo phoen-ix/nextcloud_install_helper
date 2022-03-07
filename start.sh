@@ -231,7 +231,7 @@ fn_nextcloud_install_06() {
 
 fn_nextcloud_install_07() {
    echo "*******************************"
-   $(redprint 'The next Step will open Certbot twice')
+   echo $(redprint 'The next Step will open Certbot twice')
    echo "You need to generate a certificate for both subdomains (nextcloud and collabora FQDN)"
    echo "For each domain, first enter the according number and the following step,"
    echo "let certbot create the additional entry (option 2)"
