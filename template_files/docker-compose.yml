@@ -1,0 +1,113 @@
+version: '3.7'
+services:
+  nextcloud:
+    image: nextcloud:${DOCKER_IMAGE_NEXTCLOUD_TAG}
+    container_name: nextcloud
+    ports:
+      - "127.0.0.1:6080:80"
+    volumes:
+      - ${NEXTCLOUD_ROOT}/volumes/html:/var/www/html
+      - ${NEXTCLOUD_ROOT}/volumes/data:/srv/nextcloud/data
+      - ${NEXTCLOUD_ROOT}/config/apache2.conf:/etc/apache2/apache2.conf
+    extra_hosts:
+      - "${NEXTCLOUD_FQDN}:${NEXTCLOUD_EXTERNAL_IPADDRESS}"
+      - "${COLLABORA_FQDN}:${NEXTCLOUD_EXTERNAL_IPADDRESS}"
+    depends_on:
+      - mariadb
+      - redis
+    environment:
+      - NEXTCLOUD_TRUSTED_DOMAINS='${NEXTCLOUD_FQDN}'
+      - NEXTCLOUD_DATA_DIR=/srv/nextcloud/data
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_HOST=nextcloud-mariadb
+      - REDIS_HOST=nextcloud-redis
+      - TRUSTED_PROXIES=${DOCKER_NEXTCLOUD_IPADDRESS} 127.0.0.1
+      - OVERWRITEPROTOCOL=https
+      - APACHE_DISABLE_REWRITE_IP=1
+    restart: unless-stopped
+    networks:
+      nextcloud-network:
+        aliases:
+          - nextcloud
+
+  mariadb:
+    image: mariadb:${DOCKER_IMAGE_MARIADB_TAG}
+    container_name: nextcloud-mariadb
+    restart: unless-stopped
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --skip-innodb-read-only-compressed
+    volumes:
+      - ${NEXTCLOUD_ROOT}/volumes/mariadb:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+    networks:
+      nextcloud-network:
+        aliases:
+          - mariadb
+
+  redis:
+    image: redis:${DOCKER_IMAGE_REDIS_TAG}
+    container_name: nextcloud-redis
+    restart: unless-stopped
+    networks:
+      nextcloud-network:
+        aliases:
+          - redis
+
+  coturn:
+    image: instrumentisto/coturn:${DOCKER_IMAGE_COTURN_TAG}
+    container_name: nextcloud-coturn
+    restart: unless-stopped
+    ports:
+      - "3478:3478/tcp"
+      - "3478:3478/udp"
+    command:
+      - -n
+      - --log-file=stdout
+      - --min-port=49160
+      - --max-port=49200
+      - --realm=${NEXTCLOUD_FQDN}
+      - --use-auth-secret
+      - --static-auth-secret=${COTURN_SECRET}
+    networks:
+      nextcloud-network:
+        aliases:
+          - coturn
+
+  collabora:
+    image: collabora/code:${DOCKER_IMAGE_COLLABORA_TAG}
+    container_name: nextcloud-collabora
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6180:9980"
+    extra_hosts:
+      - "${NEXTCLOUD_FQDN}:${NEXTCLOUD_EXTERNAL_IPADDRESS}"
+      - "${COLLABORA_FQDN}:${NEXTCLOUD_EXTERNAL_IPADDRESS}"
+    environment:
+      - 'domain=${NEXTCLOUD_FQDN}'
+      - 'dictionaries=en'
+    cap_add:
+      - MKNOD
+    tty: true
+    networks:
+      nextcloud-network:
+        aliases:
+          - collabora
+
+
+
+networks:
+   nextcloud-network:
+     driver: bridge
+     driver_opts:
+       com.docker.network.bridge.name: br-nextcloud
+     #enable_ipv6: true
+     ipam:
+       driver: default
+       config:
+         - subnet: ${IPV4_NETWORK:-172.19.1}.0/24
+         #- subnet: ${IPV6_NETWORK:-fd4d:1949:6c33:6f77::/64}
