@@ -49,8 +49,8 @@ $(magentaprint 'MAIN MENU')
 h) Help
 a) Start all steps
 1) Install docker & iptables mod
-2) Modify and enable ufw
-3) Install Apache & certbot
+2) Install Apache & certbot
+3) Modify and enable ufw
 4) Install Nextcloud
 0) Exit
     Choose an option:  "
@@ -58,18 +58,18 @@ a) Start all steps
    case $ans in
    a)
       fn_install_docker
-      fn_update_enable_ufw
       fn_install_apache_certbot
+      fn_update_enable_ufw
       nextcloudmenu
       ;;
    1)
       fn_install_docker
       ;;
    2)
-      fn_update_enable_ufw
+      fn_install_apache_certbot
       ;;
    3)
-      fn_install_apache_certbot
+      fn_update_enable_ufw
       ;;
    4)
       nextcloudmenu
