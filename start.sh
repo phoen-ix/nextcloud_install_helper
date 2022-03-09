@@ -391,6 +391,10 @@ fn_update_enable_ufw() {
    sudo ufw allow 'http'
    echo "add https rules"
    sudo ufw allow 'https'
+   echo "default allow outgoing"
+   sudo ufw default allow outgoing
+   echo "default deny incoming"
+   sudo ufw default deny incoming
    echo "Enabling firewall..."
    sudo ufw enable
    echo "restarting ufw in case it was already enabled"
