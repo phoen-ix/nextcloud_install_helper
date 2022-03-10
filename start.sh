@@ -363,7 +363,9 @@ fn_install_docker() {
    sudo curl -SL https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
    sudo chmod +x /usr/local/bin/docker-compose
    echo "adding docker iptables mod"
-   echo "DOCKER_OPTS=\"--iptables=false\"" | sudo tee -a /etc/default/docker
+   if grep -q "iptables=false" "/etc/default/docker"; then
+      echo "DOCKER_OPTS=\"--iptables=false\"" | sudo tee -a /etc/default/docker
+   fi
    echo "restart docker"
    sudo systemctl restart docker
    echo "done..."
