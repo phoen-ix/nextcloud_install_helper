@@ -378,6 +378,9 @@ fn_install_apache_certbot() {
    sudo apt install apache2 software-properties-common letsencrypt python3-certbot-apache -y
    echo "Enabling Modules.."
    sudo a2enmod ssl proxy proxy_http proxy_wstunnel rewrite headers remoteip
+   echo "Turning Apache to Prod and turning Server Signature off"
+   sudo sed -i "s~^ServerTokens\ OS~ServerTokens Prod~g" /etc/apache2/conf-enabled/security.conf
+   sudo sed -i "s~^ServerSignature\ On~ServerSignature Off~g" /etc/apache2/conf-enabled/security.conf
    echo "restarting apache2 service.."
    sudo systemctl restart apache2
    echo "done..."
